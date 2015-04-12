@@ -1,4 +1,3 @@
-
 assert = chai.assert
 
 describe "deck constructor", ->

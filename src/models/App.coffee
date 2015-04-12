@@ -3,9 +3,23 @@
 class window.App extends Backbone.Model
 
   initialize: ->
+    @set('amount', 1000)
+    @set('currentBet', 0)
     @startNewGame()
 
   hitOnSoft: false
+
+  bet: (type) ->
+    if type is "up"
+      if @get('amount') is 0
+        return
+      @set('currentBet', @get('currentBet') + 5)
+      @set('amount', @get('amount') - 5)
+    else
+      if @get('currentBet') is 0
+        return
+      @set('currentBet', @get('currentBet') - 5)
+      @set('amount', @get('amount') + 5)
 
   displayText: (text) ->
     @set "thisText", text
@@ -25,13 +39,16 @@ class window.App extends Backbone.Model
     if playerHand is 21 and dealerHand is 21
       @displayText "The Game is a tie"
       @triggerEndGame()
+      return "bothBlackjack"
     else if playerHand is 21
       @displayText "The Player wins"
       @triggerEndGame()
+      return "playerBlackjack"
     else if dealerHand is 21
       @displayText "Blackjack! - Dealer wins"
       @get('dealerHand').at(0).flip()
       @triggerEndGame()
+      return "dealerBlackjack"
 
   startNewGame: ->
     @newHands()
@@ -61,7 +78,6 @@ class window.App extends Backbone.Model
 
   endGame: ->
     object = @get 'dealerHand'
-    console.log(object)
     @get('dealerHand').at(0).flip()
     keepDrawing = true
 
@@ -77,21 +93,25 @@ class window.App extends Backbone.Model
     if dealerScore > 21
       @displayText "Player Wins"
       @triggerEndGame()
-      return;
+      return "dealerBust";
 
     playerScore = @get("playerHand").scores()[1]
     if playerScore > 21
       playerScore = @get("playerHand").scores()[0]
 
+    returnString = ""
     if  dealerScore > playerScore
       @displayText "Dealer Wins"
+      returnString = "dealerWins"
     else if  playerScore >  dealerScore
       @displayText "Player Wins"
+      returnString = "playerWins"
     else
       @displayText "Game is a tie"
+      returnString = "tieGame"
 
     @triggerEndGame()
-    return
+    return returnString
 
 
 
